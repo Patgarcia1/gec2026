@@ -160,6 +160,7 @@ with tab_charts:
     if not dataset_names:
         st.warning("No datasets available.")
     else:
+    
         chart_dataset = st.selectbox("Dataset for Charting", dataset_names, key="chart_ds_picker")
         chart_df = get_dataframe(project, chart_dataset)
 
@@ -199,6 +200,7 @@ with tab_charts:
             else:
                 st.info("Select at least one column to create a chart.")
 
+            #handling 3d surface chart for 3d comparisons 
             if len(all_cols) >= 3:
                 with st.expander("Advanced Visualization: 3D Surface"):
                     st.caption("Choose X and Y to group observations, and a numeric Z value for height. Each surface point is the mean Z value for that X/Y pair; some pairs may have no observations.")

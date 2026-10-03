@@ -20,21 +20,24 @@ def detect_column_type(series):
             pass
     return "category"
 
+#for creating 2d charts 
 def create_chart(df, selected_columns, chart_preference="bar"):
     if not selected_columns or df.empty:
         return None
 
+    
     types = {col: detect_column_type(df[col]) for col in selected_columns}
     numeric_cols = [c for c, t in types.items() if t == "numeric"]
     category_cols = [c for c, t in types.items() if t == "category"]
     date_cols = [c for c, t in types.items() if t == "date"]
 
+    #One numeric variable: histogram showing the distribution of values.
     if len(selected_columns) == 1 and len(numeric_cols) == 1:
         col = numeric_cols[0]
         fig = px.histogram(df, x=col, title=f"Distribution of {col}", marginal="box")
         fig.update_layout(template="plotly_white")
         return fig
-
+    #One category: bar chart counting observations in each group.
     if len(selected_columns) == 1 and len(category_cols) == 1:
         col = category_cols[0]
         counts = df[col].value_counts().reset_index()
@@ -42,7 +45,7 @@ def create_chart(df, selected_columns, chart_preference="bar"):
         fig = px.bar(counts, x=col, y="Count", title=f"Counts of {col}")
         fig.update_layout(template="plotly_white")
         return fig
-
+    #One category and one numeric variable: compare group means or use a box plot to see the spread.
     if len(numeric_cols) == 1 and (len(category_cols) == 1 or len(date_cols) == 1):
         num_col = numeric_cols[0]
         cat_col = category_cols[0] if category_cols else date_cols[0]
@@ -55,13 +58,13 @@ def create_chart(df, selected_columns, chart_preference="bar"):
 
         fig.update_layout(template="plotly_white")
         return fig
-
+    #Two numeric variables: scatter plot showing their relationship.
     if len(selected_columns) == 2 and len(numeric_cols) == 2:
         x_col, y_col = numeric_cols[0], numeric_cols[1]
         fig = px.scatter(df, x=x_col, y=y_col, title=f"{y_col} vs {x_col}")
         fig.update_layout(template="plotly_white")
         return fig
-
+    #Three or more numeric variables: correlation heatmap.
     if len(numeric_cols) >= 2 and len(category_cols) == 0 and len(date_cols) == 0:
         sub_df = df[numeric_cols].dropna()
         corr = sub_df.corr()
@@ -74,7 +77,7 @@ def create_chart(df, selected_columns, chart_preference="bar"):
         )
         fig.update_layout(template="plotly_white")
         return fig
-
+    #One category and two numeric variables: scatter plot colored by group.
     if len(numeric_cols) >= 2 and len(category_cols) >= 1:
         cat_col = category_cols[0]
         x_col = numeric_cols[0]
@@ -85,6 +88,7 @@ def create_chart(df, selected_columns, chart_preference="bar"):
 
     return None
 
+#for creating 3d charts 
 def create_surface_chart(df, x_col, y_col, z_col):
     pivot = df.pivot_table(index=y_col, columns=x_col, values=z_col, aggfunc="mean")
     fig = go.Figure(data=[go.Surface(z=pivot.values, x=pivot.columns, y=pivot.index)])
