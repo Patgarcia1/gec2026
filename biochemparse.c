@@ -21,20 +21,25 @@ void r_newline(char *str) {
 int main(){
 
 FILE *csv = fopen("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "r");
+FILE *json = fopen("biogeochem.json", "w");
 
 char line[MAX_LINE_LENGTH];
 char *head[max_columns];
 
 int col_count = 0;
 
-if(csv == NULL){
-    perror("error opening file");
-    return EXIT_FAILURE;
+if(csv == NULL || json == NULL){
+    printf("error opening file\n");
+    return 1;
 }
 
 if(fgets(line, MAX_LINE_LENGTH, csv)){
     r_newline(line);
-    char *token = strtok(line, ",");
+    char *start = line;
+    if ((unsigned char)start[0] == 0xEF && (unsigned char)start[1] == 0xBB && (unsigned char)start[2] == 0xBF) {
+        start += 3;
+    }
+    char *token = strtok(start, ",");
 
     while(token != NULL && col_count < max_columns){
         head[col_count] = strdup(token);
@@ -43,46 +48,49 @@ if(fgets(line, MAX_LINE_LENGTH, csv)){
     }
 }
 
-printf("[\n");
+fprintf(json, "[\n");
 
 int is_first_r = 1;
 
 while(fgets(line, MAX_LINE_LENGTH, csv)){
     r_newline(line);
     if(!is_first_r){
-        printf(",\n");
+        fprintf(json, ",\n");
     }
     is_first_r = 0;
 
-    printf("    {\n");
+    fprintf(json, "    {\n");
 
     char *token = strtok(line, ",");
 
     for(int i = 0; i<col_count; i++){
-        printf("    \"%s\": ", head[i]);
+        fprintf(json, "    \"%s\": ", head[i]);
 
         if(token){
-            printf("\"%s\"", token);
+            fprintf(json, "\"%s\"", token);
                 token = strtok(NULL, ",");
         }
         else{
-            printf("null");
+            fprintf(json, "null");
         }
 
        if(i < col_count -1){
-        printf(",");
+        fprintf(json, ",");
        }
-       printf("\n");
+       fprintf(json, "\n");
     }
-    printf("    }\n");
+    fprintf(json, "    }\n");
 }
-printf("\n]\n");
+fprintf(json, "\n]\n");
  
 
     for (int i = 0; i < col_count; i++) {
         free(head[i]);
     }
     fclose(csv);
+    fclose(json);
+
+    printf("Done! Successfully created biogeochem.json\n");
 
     return 0;
 }
