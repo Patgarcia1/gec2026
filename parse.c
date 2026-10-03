@@ -94,15 +94,51 @@ int parse_file(const char *csv_name, const char *json_name){
 }
 
 int main(int argc, char *argv[]){
-    if(argc < 2 || strcmp(argv[1], "all") == 0){
-        parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
-        parse_file("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "biogeochem.json");
-        parse_file("CowEnergyBalanceData-1.csv", "cowenergy.json");
-        return 0;
+    if(argc < 2){
+        char input_csv[MAX_LINE_LENGTH];
+        printf("Enter CSV file name: ");
+        if(fgets(input_csv, MAX_LINE_LENGTH, stdin) == NULL){
+            return 1;
+        }
+        r_newline(input_csv);
+
+        if(strlen(input_csv) == 0 || strcmp(input_csv, "all") == 0){
+            parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
+            parse_file("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "biogeochem.json");
+            parse_file("CowEnergyBalanceData-1.csv", "cowenergy.json");
+            return 0;
+        }
+        else if(strcmp(input_csv, "biolog") == 0 || strcmp(input_csv, "Pecsi_Hawaii_Biolog_PigDecomposition.csv") == 0){
+            return parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
+        }
+        else if(strcmp(input_csv, "biochem") == 0 || strcmp(input_csv, "Pecsi_Hawaii_Biogeochem_PigDecomposition.csv") == 0){
+            return parse_file("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "biogeochem.json");
+        }
+        else if(strcmp(input_csv, "cow") == 0 || strcmp(input_csv, "CowEnergyBalanceData-1.csv") == 0){
+            return parse_file("CowEnergyBalanceData-1.csv", "cowenergy.json");
+        }
+        else{
+            char json_name[MAX_LINE_LENGTH];
+            strncpy(json_name, input_csv, MAX_LINE_LENGTH - 1);
+            json_name[MAX_LINE_LENGTH - 1] = '\0';
+            char *ext = strstr(json_name, ".csv");
+            if(ext && strcmp(ext, ".csv") == 0){
+                strcpy(ext, ".json");
+            } else {
+                strncat(json_name, ".json", MAX_LINE_LENGTH - strlen(json_name) - 1);
+            }
+            return parse_file(input_csv, json_name);
+        }
     }
 
     if(argc == 2){
-        if(strcmp(argv[1], "biolog") == 0){
+        if(strcmp(argv[1], "all") == 0){
+            parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
+            parse_file("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "biogeochem.json");
+            parse_file("CowEnergyBalanceData-1.csv", "cowenergy.json");
+            return 0;
+        }
+        else if(strcmp(argv[1], "biolog") == 0){
             return parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
         }
         else if(strcmp(argv[1], "biochem") == 0){
@@ -112,8 +148,16 @@ int main(int argc, char *argv[]){
             return parse_file("CowEnergyBalanceData-1.csv", "cowenergy.json");
         }
         else{
-            printf("unknown option: %s\n", argv[1]);
-            return 1;
+            char json_name[MAX_LINE_LENGTH];
+            strncpy(json_name, argv[1], MAX_LINE_LENGTH - 1);
+            json_name[MAX_LINE_LENGTH - 1] = '\0';
+            char *ext = strstr(json_name, ".csv");
+            if(ext && strcmp(ext, ".csv") == 0){
+                strcpy(ext, ".json");
+            } else {
+                strncat(json_name, ".json", MAX_LINE_LENGTH - strlen(json_name) - 1);
+            }
+            return parse_file(argv[1], json_name);
         }
     }
 
