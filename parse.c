@@ -5,42 +5,60 @@
 #define MAX_LINE_LENGTH 1000
 #define max_columns 40
 
+
+//removes new lines and replaces with null terminators
 void r_newline(char *str) {
     int len = 0;
     while(str[len] != '\0'){
         len++;
     }
+    //Remove all new lines & carriage returns and replace them with null terminators
     while(len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
         str[len - 1] = '\0';
         len--;
     }
 }
 
+ 
+
+
 int parse_file(const char *csv_name, const char *json_name){
+
+    //first load the csv files
     FILE *csv = fopen(csv_name, "r");
     FILE *json = fopen(json_name, "w");
 
+    
     char line[MAX_LINE_LENGTH];
     char *head[max_columns];
 
     int col_count = 0;
 
+    //then check if they are loaded correctly.
     if(csv == NULL || json == NULL){
+
+        //handle error
         printf("error opening file\n");
         if(csv) fclose(csv);
         if(json) fclose(json);
-        return 1;
+        return -1;
     }
 
+    //read the initial header file first
     if(fgets(line, MAX_LINE_LENGTH, csv)){
         r_newline(line);
         char *start = line;
+
+        // Check for UTF-8 BOM and skip it if present
         if ((unsigned char)start[0] == 0xEF && (unsigned char)start[1] == 0xBB && (unsigned char)start[2] == 0xBF) {
             start += 3;
         }
+        //get first token (tokens seperated by ",")
         char *token = strtok(start, ",");
 
         while(token != NULL && col_count < max_columns){
+
+            //read tokens into the head array
             head[col_count] = strdup(token);
             col_count++;
             token = strtok(NULL, ",");
@@ -49,39 +67,52 @@ int parse_file(const char *csv_name, const char *json_name){
 
     fprintf(json, "[\n");
 
-    int is_first_r = 1;
 
+    //check if first line
+    int is_first_row = 1;
+
+    //read data lines and convert them to JSON format
     while(fgets(line, MAX_LINE_LENGTH, csv)){
         r_newline(line);
-        if(!is_first_r){
+        if(!is_first_row){
+            //if not first row add comma and newline
             fprintf(json, ",\n");
         }
-        is_first_r = 0;
+        is_first_row = 0;
 
+        //start a new json object 
         fprintf(json, "    {\n");
-
+        //start reading tokens from line
         char *token = strtok(line, ",");
 
-        for(int i = 0; i<col_count; i++){
+        for(int i = 0; i< col_count; i++){
+            //first data name 
             fprintf(json, "    \"%s\": ", head[i]);
-
             if(token){
+                //if token exists write it to file
                 fprintf(json, "\"%s\"", token);
                 token = strtok(NULL, ",");
             }
             else{
+                //otherwise write null to file
                 fprintf(json, "null");
             }
 
+            //
             if(i < col_count -1){
                 fprintf(json, ",");
             }
             fprintf(json, "\n");
         }
+
+        //end the object
         fprintf(json, "    }\n");
     }
+    //end json
     fprintf(json, "\n]\n");
 
+
+    //free memory and close files
     for (int i = 0; i < col_count; i++) {
         free(head[i]);
     }
