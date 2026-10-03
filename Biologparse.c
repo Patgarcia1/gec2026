@@ -33,7 +33,11 @@ int main()
     if (fgets(line, sizeof(line), csv_file))
     {
         strip_newline(line);
-        char *token = strtok(line, ",");
+        char *start = line;
+        if ((unsigned char)start[0] == 0xEF && (unsigned char)start[1] == 0xBB && (unsigned char)start[2] == 0xBF) {
+            start += 3;
+        }
+        char *token = strtok(start, ",");
         while (token && count < MAX_FIELDS)
         {
             header[count] = strdup(token);
