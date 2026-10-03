@@ -1,15 +1,55 @@
 import os
 import json
 import pandas as pd
+from parse import get_meta, parse_val
 
 def load_project(source):
     if hasattr(source, "read"):
+        filename = getattr(source, "name", "dataset.json")
         raw = json.load(source)
     else:
+        filename = str(source)
         if not os.path.exists(source):
             raise FileNotFoundError(f"File not found: {source}")
         with open(source, "r", encoding="utf-8") as f:
             raw = json.load(f)
+
+    if isinstance(raw, list):
+        base = os.path.splitext(os.path.basename(filename))[0]
+        meta_key = "biolog" if "biolog" in base.lower() else ("cow" if "cow" in base.lower() else "biogeochem")
+        meta = get_meta(meta_key)
+        cleaned_records = []
+        for r in raw:
+            if isinstance(r, dict):
+                cleaned_row = {k: parse_val(v) for k, v in r.items()}
+                cleaned_records.append(cleaned_row)
+
+        all_vars = meta.get("variables", {}).copy()
+        if cleaned_records:
+            for k in cleaned_records[0].keys():
+                if k not in all_vars:
+                    all_vars[k] = {"description": k, "unit": ""}
+
+        raw = {
+            "metadata": {
+                "title": meta.get("title", base),
+                "authors": meta.get("authors", []),
+                "doi": meta.get("doi", ""),
+                "license": meta.get("license", ""),
+                "dates": meta.get("dates", ""),
+                "location": meta.get("location", ""),
+                "description": meta.get("description", "")
+            },
+            "variables": all_vars,
+            "datasets": {
+                base: {
+                    "row_count": len(cleaned_records),
+                    "col_count": len(cleaned_records[0]) if cleaned_records else 0,
+                    "records": cleaned_records
+                }
+            },
+            "warnings": ["Dataset was loaded from flat record list and formatted with metadata"]
+        }
 
     if not isinstance(raw, dict):
         raise ValueError("Invalid format: Root JSON must be an object")
