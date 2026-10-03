@@ -2,3 +2,5 @@ Pecsi_Hawaii_Biogeochem_PigDecomposition_ReadMe.txt (text/plain) 7287 bytes.
 Pecsi_Hawaii_Biolog_PigDecomposition_ReadMe.txt (text/plain) 6458 bytes.
 Pecsi_Hawaii_Biogeochem_PigDecomposition.csv (text/csv) 9593 bytes.
 Pecsi_Hawaii_Biolog_PigDecomposition.csv (text/csv) 5110 bytes.
+CowEnergyBalanceData-1.csv (text/csv) 15976 bytes.
+100A_README.txt (text/plain) 7122 bytes.
