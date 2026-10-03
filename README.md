@@ -1,7 +1,6 @@
 # Environmental & Biological Research Data Dashboard
 
 ## Team Information
-- **Team Name:** GEC 2026
 - **Project Title:** Interactive Multi-Dataset Scientific Analysis Dashboard
 
 ## Overview
