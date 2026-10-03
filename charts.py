@@ -2,6 +2,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+
+
+
 def detect_column_type(series):
     if pd.api.types.is_numeric_dtype(series):
         return "numeric"
