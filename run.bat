@@ -26,6 +26,8 @@ echo Installing dashboard dependencies...
 if errorlevel 1 goto failed
 
 :launch
+call "%~dp0run_parser.bat"
+if errorlevel 1 goto failed
 "venv\Scripts\python.exe" -m streamlit run app.py %*
 if errorlevel 1 goto failed
 exit /b 0

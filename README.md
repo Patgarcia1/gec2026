@@ -8,7 +8,9 @@
 An interactive Streamlit application for exploring, filtering, analyzing, and visualizing research datasets from soil biogeochemistry, microbial ecoplate profiles, and dairy cattle metabolic energy balance studies.
 
 ## Project Structure
-- `parse.py`: Command-line data parser converting CSV, TSV, and XLSX datasets into structured JSON with typed numbers, variable definitions, and validation warnings.
+- `parse.c`: CSV parser used by the Windows launchers to generate JSON record lists.
+- `run_parser.bat`: Compiles and runs the C parser for all three datasets.
+- `parse.py`: README metadata extraction and value conversion helpers used by the Python loader. Dataset file parsing is performed by `parse.c`.
 - `loader.py`: Module for loading and validating project JSON files into pandas DataFrames.
 - `charts.py`: Automated chart selection engine using Plotly Express and Plotly Graph Objects.
 - `app.py`: Streamlit multi-tab user interface (Overview, Data, Charts, Warnings).
@@ -36,16 +38,24 @@ An interactive Streamlit application for exploring, filtering, analyzing, and vi
    pip install -r requirements.txt
    ```
 
-4. **Run Data Parser (Optional)**
-   To re-parse the datasets from their raw CSV/XLSX sources:
-   ```bash
-   python parse.py all
+4. **Run the C Data Parser**
+   On Windows, install GCC (MinGW-w64) and run:
+   ```bat
+   run_parser.bat
    ```
+   This compiles the unchanged `parse.c` and sends `all` to its input prompt
+   to regenerate the three JSON files. The Python loader adds metadata and
+   converts numeric strings for the dashboard; CSV parsing is performed by C.
+   `get_meta(key)` reads the corresponding dataset README on each call to extract
+   titles, authors, collection dates, locations, licenses, descriptions, and
+   variable definitions. Only explicitly identified dataset DOIs are used;
+   ancillary links are not treated as dataset DOIs. Missing fields remain empty.
 
 5. **Launch the Dashboard**
-   ```bash
-   streamlit run app.py
+   ```bat
+   run.bat
    ```
+   The launcher runs the C parser before starting the Python dashboard.
 
 ## Features
 - **Project Selection:** Switch seamlessly between local project JSON files or upload a custom JSON directly in the sidebar.

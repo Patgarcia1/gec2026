@@ -125,6 +125,8 @@ int parse_file(const char *csv_name, const char *json_name){
 }
 
 int main(int argc, char *argv[]){
+
+    
     if(argc < 2){
         char input_csv[MAX_LINE_LENGTH];
         printf("Enter CSV file name: ");
@@ -161,8 +163,7 @@ int main(int argc, char *argv[]){
             return parse_file(input_csv, json_name);
         }
     }
-
-    if(argc == 2){
+     if(argc == 2){
         if(strcmp(argv[1], "all") == 0){
             parse_file("Pecsi_Hawaii_Biolog_PigDecomposition.csv", "biolog.json");
             parse_file("Pecsi_Hawaii_Biogeochem_PigDecomposition.csv", "biogeochem.json");
@@ -195,6 +196,7 @@ int main(int argc, char *argv[]){
     if(argc == 3){
         return parse_file(argv[1], argv[2]);
     }
+   
 
     return 1;
 }
